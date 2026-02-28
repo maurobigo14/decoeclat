@@ -133,3 +133,22 @@ ALTER TABLE "carousel_home" ADD FOREIGN KEY ("producto_id") REFERENCES "producto
 ALTER TABLE "carousel_home" ADD FOREIGN KEY ("categoria_id") REFERENCES "categorias" ("categoria_id");
 
 ALTER TABLE "usuarios" ADD FOREIGN KEY ("rol_id") REFERENCES "roles" ("rol_id");
+
+-- Categorías padre
+INSERT INTO categorias (nombre, parent_id) VALUES
+('Textiles', NULL),
+('Cestería', NULL),
+('Para la Mesa', NULL),
+('Para la Cocina', NULL),
+('Kids', NULL);
+
+-- Subcategorías
+INSERT INTO categorias (nombre, parent_id)
+VALUES
+('Lonitas', (SELECT categoria_id FROM categorias WHERE nombre = 'Textiles')),
+('Fundas', (SELECT categoria_id FROM categorias WHERE nombre = 'Textiles')),
+('Mantas', (SELECT categoria_id FROM categorias WHERE nombre = 'Textiles')),
+('Almohadones', (SELECT categoria_id FROM categorias WHERE nombre = 'Kids')),
+('Cestos', (SELECT categoria_id FROM categorias WHERE nombre = 'Kids')),
+('Contenedores', (SELECT categoria_id FROM categorias WHERE nombre = 'Kids')),
+('Alfombras', (SELECT categoria_id FROM categorias WHERE nombre = 'Kids'));
