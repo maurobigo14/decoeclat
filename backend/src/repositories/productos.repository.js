@@ -6,13 +6,20 @@ import { pool } from "../config/db.js";
  */
 
 export const productosRepository = {
-  async create({ name, categoryId, price }) {
+  async create({ name, categoryId, price, description, offerPrice, onOffer }) {
     const text = `
-      INSERT INTO productos (nombre, categoria_id, precio)
-      VALUES ($1, $2, $3)
+      INSERT INTO productos (nombre, descripcion, precio, precio_oferta, en_oferta, categoria_id)
+      VALUES ($1, $2, $3, $4, $5, $6)
       RETURNING *
     `;
-    const values = [name, categoryId, price];
+    const values = [
+      name,
+      description ?? null,
+      price,
+      offerPrice ?? null,
+      onOffer == null ? false : onOffer,
+      categoryId,
+    ];
     const { rows } = await pool.query(text, values);
     return rows[0];
   },
@@ -50,15 +57,19 @@ export const productosRepository = {
     return rows[0];
   },
 
-  async update(id, fields = {}) {
+async update(id, fields = {}) {
     const sets = [];
     const values = [];
     let idx = 1;
 
+    // Mapeo para que si mandas 'name' desde el service, se guarde como 'nombre' en SQL
     const columnMap = {
       name: "nombre",
       price: "precio",
       categoryId: "categoria_id",
+      description: "descripcion",
+      offerPrice: "precio_oferta",
+      onOffer: "en_oferta",
     };
 
     for (const key of Object.keys(fields)) {
@@ -67,15 +78,20 @@ export const productosRepository = {
       values.push(fields[key]);
       idx++;
     }
+
     if (sets.length === 0) return null;
 
+    // Agregamos el ID al final del array de valores
     values.push(id);
+    
+    // IMPORTANTE: Quitamos updated_at para evitar errores de SQL
     const text = `
       UPDATE productos
-      SET ${sets.join(", ")}, updated_at = NOW()
+      SET ${sets.join(", ")}
       WHERE producto_id = $${idx}
       RETURNING *
     `;
+
     const { rows } = await pool.query(text, values);
     return rows[0];
   },
