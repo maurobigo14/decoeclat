@@ -2,6 +2,7 @@ import express from "express";
 import productosRoutes from "./routes/productos.routes.js";
 import variantesRoutes from "./routes/variantes.routes.js";
 import clienteRoutes from "./routes/cliente.routes.js";
+import ventasRoutes from "./routes/ventas.routes.js";
 
 export const app = express();
 
@@ -11,6 +12,7 @@ app.use(express.json());
 app.use("/api", clienteRoutes);
 app.use("/api", variantesRoutes);
 app.use("/api", productosRoutes);
+app.use("/api", ventasRoutes);
 
 
 app.get("/", (req, res) => {
